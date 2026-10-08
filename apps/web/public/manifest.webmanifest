@@ -1,0 +1,9 @@
+{
+  "name": "LOTUS Patient",
+  "short_name": "LOTUS",
+  "start_url": "/patient",
+  "display": "standalone",
+  "background_color": "#07090d",
+  "theme_color": "#07090d",
+  "icons": []
+}

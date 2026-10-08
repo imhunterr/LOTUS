@@ -1,0 +1,24 @@
+{
+  "source": "ILLUSTRATIVE SAMPLE: not real FDA data. Run `python pipeline/openfda.py` to replace with real openFDA enforcement events.",
+  "sample": true,
+  "events": [
+    {
+      "recall_number": "SAMPLE-0001",
+      "classification": "Class I",
+      "product_description": "Sample oral liquid, 100 mL bottle (illustrative)",
+      "reason_for_recall": "Illustrative: contamination with diethylene glycol detected in one lot."
+    },
+    {
+      "recall_number": "SAMPLE-0002",
+      "classification": "Class II",
+      "product_description": "Sample tablets, 30-count bottle (illustrative)",
+      "reason_for_recall": "Illustrative: failed dissolution specification at 12-month stability test."
+    },
+    {
+      "recall_number": "SAMPLE-0003",
+      "classification": "Class III",
+      "product_description": "Sample ointment, 15 g tube (illustrative)",
+      "reason_for_recall": "Illustrative: labeling error, incorrect expiry date printed on carton."
+    }
+  ]
+}

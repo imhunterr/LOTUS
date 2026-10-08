@@ -1,0 +1,15 @@
+{
+  "name": "lotus",
+  "private": true,
+  "description": "LOTUS — Lot-Oriented Traceability for Unlinkable Subjects",
+  "workspaces": ["contracts", "sdk", "apps/web", "apps/relayer"],
+  "scripts": {
+    "compile": "npm run compile -w contracts",
+    "test": "npm test -w contracts && npm test -w sdk",
+    "chain": "npm run chain -w contracts",
+    "deploy:local": "npm run deploy:local -w contracts",
+    "demo:seed": "npm run seed -w contracts",
+    "web": "npm run dev -w apps/web",
+    "relayer": "npm start -w apps/relayer"
+  }
+}

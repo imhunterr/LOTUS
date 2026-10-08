@@ -1,0 +1,26 @@
+{
+  "name": "@lotus/contracts",
+  "version": "1.0.0",
+  "description": "LOTUS Solidity contracts",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage",
+    "chain": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:amoy": "hardhat run scripts/deploy.js --network amoy",
+    "seed": "hardhat run scripts/seed-demo.js --network localhost"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "@openzeppelin/contracts": "^5.4.0",
+    "hardhat": "^2.29.1",
+    "poseidon-lite": "^0.3.0",
+    "poseidon-solidity": "^0.0.5",
+    "solc": "^0.8.24"
+  },
+  "dependencies": {
+    "@lotus/sdk": "0.1.0"
+  }
+}

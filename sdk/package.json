@@ -1,0 +1,14 @@
+{
+  "name": "@lotus/sdk",
+  "version": "0.1.0",
+  "description": "LOTUS client SDK: patient commitments, lot Merkle trees, nullifiers and Guardian recovery",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": { ".": "./src/index.js" },
+  "scripts": { "test": "node --test test/*.test.js" },
+  "dependencies": {
+    "ethers": "^6.17.0",
+    "poseidon-lite": "^0.3.0",
+    "shamir-secret-sharing": "^0.0.4"
+  }
+}
