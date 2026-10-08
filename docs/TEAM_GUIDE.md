@@ -12,7 +12,7 @@ their area in the viva. The "explain it" column is what an examiner will most li
 | P5 Measurement | Metrics, gas, scaling, figures | `pipeline/evaluate.py`, `pipeline/figures.py`, `contracts/scripts/bench-gas.js`, `sdk/bench` | Precision vs sensitivity; why LOTUS + channels never does worse (I6) | — |
 | P6 Data Pipeline | Cohorts, openFDA, reproducibility | `pipeline/cohort.py`, `openfda.py`, `manifest.py` | How byte-identical regeneration is checked | Run `openfda.py` on an open network and commit the output |
 | P7 Patient Product | Patient app and verify page | `apps/web/src/pages/Patient.jsx`, `Verify.jsx`, `lib/patientStore.js`, `lib/prover.js`, `public/sw.js` | Encrypted wallet; code rotation; in-browser proving; recovery flow | Native-speaker check of translations |
-| P8 Integration | Demo, deployment, CI | `scripts/demo.sh`, `contracts/scripts/*`, `apps/relayer`, `apps/web/e2e`, `.github/workflows` | Relayer role; how CI proves it all works | Amoy deploy (`docs/DEPLOY.md`), demo video |
+| P8 Integration | Demo, deployment, CI | `scripts/demo.sh`, `contracts/scripts/*`, `apps/relayer`, `apps/web/e2e`, `.github/workflows` | Relayer role; how CI proves it all works | Amoy deploy (`docs/DEPLOY.md`) |
 
 ## Daily commands
 

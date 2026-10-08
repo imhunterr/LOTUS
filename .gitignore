@@ -31,3 +31,5 @@ apps/web/src/generated/demo-patient.json
 contracts/deployments/
 !apps/web/public/zk/*.zkey
 .demo-logs/
+contracts/config/actors.*.json
+!contracts/config/actors.example.json

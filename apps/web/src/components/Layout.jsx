@@ -55,7 +55,7 @@ export default function Layout() {
           )}
         </div>
       </aside>
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         <nav className="flex gap-2 overflow-x-auto border-b border-ink-700 bg-ink-900 p-3 md:hidden">
           {NAV.filter((n) => n.to).map((n) => (
             <NavLink key={n.to} to={n.to} end={n.to === "/"} className="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm text-slate-300">

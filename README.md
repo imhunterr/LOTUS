@@ -17,13 +17,16 @@ zero-knowledge proofs let them acknowledge recalls and report side effects anony
 
 *(10,000–100,000-patient synthetic cohorts with injected lost phones and misrecorded lots; see `docs/REPORT.md`.)*
 
+**Watch first:** [`docs/demo/lotus-demo.mp4`](docs/demo/lotus-demo.mp4), a 2-minute captioned walkthrough recorded from the real app.
+**Read:** [`docs/LOTUS_Report.pdf`](docs/LOTUS_Report.pdf) (also `.docx`).
+
 ## Run the demo
 
 Requirements: Node 20+ (Python 3.11+ only for the evaluation pipeline).
 
 ```bash
 npm install
-npm run demo          # fresh chain → deploy → seed → relayer → web app on http://localhost:5173
+npm run demo          # fresh chain → deploy → seed → FDA replay lots → relayer → web app on http://localhost:5173
 ```
 
 Five-minute walkthrough: **Patient app** → set a PIN → "Load seeded demo patient" →
@@ -43,8 +46,10 @@ Five-minute walkthrough: **Patient app** → set a PIN → "Load seeded demo pat
 | `npm run redteam` | Six adversary simulations → `redteam/REPORT.md` |
 | `npm run eval` | Precision / sensitivity / scaling evaluation + figures in `docs/figures/` |
 | `python pipeline/manifest.py verify` | Checks the datasets regenerate byte for byte |
-| `npm run zk:setup` | Rebuilds the circuit, trusted setup and Solidity verifier |
-| `npm run deploy:amoy -w contracts` | Polygon Amoy deployment (see `docs/DEPLOY.md`) |
+| `npm run zk:setup` | Rebuilds the circuit and verifier, using the public Hermez ceremony when it can download it |
+| `npm run report` | Rebuilds `docs/LOTUS_Report.pdf` and `.docx` from `docs/REPORT.md` |
+| `node apps/web/e2e/record-demo.mjs` | Re-records the captioned demo video (with the demo running) |
+| `npm run amoy:wallet -w contracts` then `npm run amoy:all -w contracts` | Polygon Amoy: create keys, then deploy + verify + register actors (`docs/DEPLOY.md`) |
 
 ## Repository layout
 

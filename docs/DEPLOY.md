@@ -1,41 +1,63 @@
 # Deploying to Polygon Amoy (P8)
 
-The local demo needs nothing but Node. A public testnet deployment gives the project a citable address.
+The local demo (`npm run demo`) needs nothing but Node. A public testnet deployment gives the project a
+citable address. Everything below runs from the repository root on a normal internet connection.
 
-## 1. One-time setup
-
-1. Create a fresh wallet for deployment only (never reuse a personal one) and copy its private key.
-2. Get test POL from the Polygon faucet (https://faucet.polygon.technology, choose Amoy). A full
-   deployment needs well under 1 POL at testnet gas prices.
-3. Get a Polygonscan API key (https://polygonscan.com/myapikey) for source verification.
-4. `cp contracts/.env.example contracts/.env` and fill in `AMOY_RPC_URL`, `DEPLOYER_KEY`,
-   `POLYGONSCAN_API_KEY`. Load it with `set -a; source contracts/.env; set +a`.
-
-## 2. Trusted setup (recommended before a public deployment)
-
-Download `powersOfTau28_hez_final_14.ptau` into `circuits/build/`, then:
+## 1. Use the public trusted setup (once)
 
 ```bash
-npm run zk:setup     # checks the file's official hash, rebuilds zkey + Groth16Verifier.sol
+npm run zk:setup
 ```
 
-## 3. Deploy and verify
+This downloads the public Hermez Powers of Tau file, checks its official hash, and regenerates the
+proving key and `Groth16Verifier.sol`. Commit the changed files (`apps/web/public/zk/*`,
+`contracts/contracts/privacy/Groth16Verifier.sol`) and run `npm test` to confirm the real-proof tests pass.
+
+## 2. Create and fund the deployer
 
 ```bash
-npm run deploy:amoy -w contracts     # deploys the verifier + 7 contracts, writes deployments/amoy.json
-npm run verify:amoy -w contracts     # verifies every contract on amoy.polygonscan.com
+npm run amoy:wallet -w contracts
 ```
 
-Then register the real actors from the admin account (`RoleRegistry.registerActor(address, role, region)`)
-and point the web app at Amoy:
+This writes a fresh deployer key and relayer key to `contracts/.env` (git-ignored, readable only by you)
+and prints both addresses. Then:
+
+1. Fund both addresses with test POL from https://faucet.polygon.technology (network: Amoy).
+2. Create a free API key at https://polygonscan.com/myapikey and paste it into `POLYGONSCAN_API_KEY=`
+   in `contracts/.env`.
+
+## 3. Say who the real actors are
+
+Copy `contracts/config/actors.example.json` to `contracts/config/actors.amoy.json` and put in the
+MetaMask addresses of whoever plays manufacturer, distributor, pharmacy, prescriber and regulator in
+the demo (team members' wallets are fine).
+
+## 4. Deploy, verify, register
 
 ```bash
-echo "VITE_RPC_URL=https://rpc-amoy.polygon.technology" > apps/web/.env.local
-VITE_USE_WALLET=1 npm run build -w apps/web     # dashboards sign with MetaMask on Amoy
+npm run amoy:all -w contracts
 ```
 
-The relayer needs `RPC_URL`, `RELAYER_KEY` (a funded Amoy key) and `DEPLOYMENT=contracts/deployments/amoy.json`.
+This deploys the verifier and the seven contracts (`contracts/deployments/amoy.json`), verifies every
+contract's source on amoy.polygonscan.com, and registers the actors. Each step can be re-run on its own:
+`deploy:amoy`, `verify:amoy`, `amoy:actors`.
 
-## 4. Demo reset
+## 5. Point the apps at Amoy
 
-`npm run demo` always starts a fresh local chain, redeploys and reseeds, so re-running it is the reset.
+```bash
+cp contracts/deployments/amoy.json apps/web/src/generated/deployment.json
+printf "VITE_RPC_URL=https://rpc-amoy.polygon.technology\nVITE_USE_WALLET=1\nVITE_RELAYER_URL=http://localhost:8787\n" > apps/web/.env.local
+npm run build -w apps/web      # dashboards now sign with MetaMask on Amoy
+
+RPC_URL=https://rpc-amoy.polygon.technology \
+DEPLOYMENT=contracts/deployments/amoy.json \
+RELAYER_KEY=$(grep RELAYER_KEY contracts/.env | cut -d= -f2) \
+npm run relayer
+```
+
+`apps/web/dist/` is a static site; it can be hosted on GitHub Pages, Netlify or Vercel.
+
+## Demo reset (local)
+
+`npm run demo` always starts a fresh local chain, redeploys, reseeds and stages the FDA replay lots, so
+re-running it is the reset.

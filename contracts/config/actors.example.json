@@ -1,0 +1,7 @@
+[
+  { "role": "MANUFACTURER", "address": "0x0000000000000000000000000000000000000001", "region": 0, "label": "Manufacturer" },
+  { "role": "DISTRIBUTOR",  "address": "0x0000000000000000000000000000000000000002", "region": 0, "label": "Distributor" },
+  { "role": "PHARMACY",     "address": "0x0000000000000000000000000000000000000003", "region": 1, "label": "Pharmacy A · Manipal" },
+  { "role": "PRESCRIBER",   "address": "0x0000000000000000000000000000000000000004", "region": 1, "label": "Doctor" },
+  { "role": "REGULATOR",    "address": "0x0000000000000000000000000000000000000005", "region": 0, "label": "Regulator" }
+]

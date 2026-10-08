@@ -21,6 +21,8 @@
     "test:e2e": "node apps/web/e2e/full-demo.mjs",
     "redteam": "npm start -w redteam",
     "eval": "python3 pipeline/evaluate.py && python3 pipeline/figures.py",
-    "zk:setup": "bash circuits/setup.sh"
+    "zk:setup": "bash circuits/setup.sh",
+    "demo:stage-fda": "npm run stage-fda -w contracts",
+    "report": "bash scripts/build-report.sh"
   }
 }

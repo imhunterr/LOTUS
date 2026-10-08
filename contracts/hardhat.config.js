@@ -12,7 +12,15 @@ subtask(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, async (args, hre, runSuper) => {
   return runSuper();
 });
 
-const { AMOY_RPC_URL, DEPLOYER_KEY, POLYGONSCAN_API_KEY } = process.env;
+// Loads contracts/.env if present (written by `npm run amoy:wallet`).
+try {
+  for (const line of require("fs").readFileSync(require("path").join(__dirname, ".env"), "utf8").split("\n")) {
+    const m = line.match(/^([A-Z_]+)=(.*)$/);
+    if (m && m[2] && !process.env[m[1]]) process.env[m[1]] = m[2].trim();
+  }
+} catch {}
+
+const { AMOY_RPC_URL = "https://rpc-amoy.polygon.technology", DEPLOYER_KEY, POLYGONSCAN_API_KEY } = process.env;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -23,7 +31,7 @@ module.exports = {
   networks: {
     hardhat: { allowUnlimitedContractSize: false },
     localhost: { url: "http://127.0.0.1:8545" },
-    ...(AMOY_RPC_URL && DEPLOYER_KEY
+    ...(DEPLOYER_KEY
       ? { amoy: { url: AMOY_RPC_URL, accounts: [DEPLOYER_KEY], chainId: 80002 } }
       : {}),
   },

@@ -37,12 +37,22 @@
 | Evidence | Red-team simulations, scaling to 100k patients, figures, byte-identical dataset manifest | `redteam/`, `pipeline/` |
 | Ops | One-command demo, Amoy deploy + verify scripts, three-job CI | `scripts/demo.sh`, `contracts/scripts`, `.github/workflows` |
 
-## Still open
+## Final round
 
-| Item | Why it isn't done here | Owner |
+| What | Where |
+|---|---|
+| FDA replay recalls the exact lot numbers parsed from each notice, with a drug-code vs LOTUS comparison | `sdk/src/fda.js`, `contracts/scripts/stage-fda.js`, Regulator page |
+| Captioned demo video recorded from the real app | `docs/demo/lotus-demo.mp4`, `apps/web/e2e/record-demo.mjs` |
+| Report as PDF and Word with cover page | `docs/LOTUS_Report.pdf`, `.docx`, `npm run report` |
+| Every page fits a phone screen; offline mode verified | `Layout.jsx`, `public/sw.js` |
+| Amoy: key generation, actor registration, one-command deploy + verify | `contracts/scripts/new-deployer.js`, `register-actors.js`, `npm run amoy:all` |
+| Trusted setup downloads and hash-checks the public ceremony automatically | `circuits/setup.sh` |
+
+## Still open (needs your network, keys or people)
+
+| Item | How | Owner |
 |---|---|---|
-| Public Hermez Powers of Tau | The file host is blocked from the build environment; `npm run zk:setup` uses it automatically once downloaded | P2 |
-| Amoy deployment | Needs the team's own funded deployer key and Polygonscan API key (`docs/DEPLOY.md`) | P8 |
-| Real openFDA events in the replay panel | openFDA is blocked from the build environment; run `python pipeline/openfda.py` on a normal connection | P6 |
-| Native-speaker check of Hindi / Kannada / Telugu alerts | Needs people | P7 |
-| Demo video | Needs people | P8 |
+| Public Hermez ceremony | `npm run zk:setup` on a normal connection, commit the regenerated files | P2 |
+| Amoy deployment | `npm run amoy:wallet -w contracts`, fund, `npm run amoy:all -w contracts` (`docs/DEPLOY.md`) | P8 |
+| Real openFDA events | `python pipeline/openfda.py`, then `npm run demo` | P6 |
+| Native-speaker check of Hindi / Kannada / Telugu alerts | `apps/web/src/lib/i18n.js` | P7 |

@@ -30,3 +30,11 @@ test("Merkle path recomputes the root", () => {
   assert.equal(depth, 1); // leaf 2 has no right sibling, so only the level-1 sibling is real
   assert.notEqual(root, 0n);
 });
+
+test("parses lot numbers out of openFDA code_info text", async () => {
+  const { parseLotNumbers } = await import("../src/fda.js");
+  assert.deepEqual(parseLotNumbers("Lot #: 22A123, Exp 12/24; Lot 22A124, Exp 01/25"), ["22A123", "22A124"]);
+  assert.deepEqual(parseLotNumbers("Lot Number: TB23K118, exp. 11/2026"), ["TB23K118"]);
+  assert.deepEqual(parseLotNumbers("Lot No. OT2405X"), ["OT2405X"]);
+  assert.deepEqual(parseLotNumbers("All lots within expiry"), []);
+});

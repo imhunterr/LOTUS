@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { id as keccakId } from "ethers";
+import { CLASSIFICATION, eventNdc, parseLotNumbers } from "@lotus/sdk";
 import { DEMO_ACCOUNTS, asRole, contract, fetchLots, fetchRecalls } from "../lib/chain";
 import { CLASS_LABEL, Card, ErrorNote, PageHeader, Stat, TxButton, useAsync } from "../components/ui";
 
 const replayFiles = import.meta.glob("../generated/fda-replay.json", { eager: true, import: "default" });
 const FDA_EVENTS = replayFiles["../generated/fda-replay.json"]?.events ?? [];
+const REPLAY_SAMPLE = !!replayFiles["../generated/fda-replay.json"]?.sample;
 
 export const REGIONS = { 1: "Udupi district", 2: "Dakshina Kannada", 3: "Shivamogga" };
 
@@ -20,6 +22,7 @@ async function loadAll() {
   const lotRows = await Promise.all(lots.map(async (l) => ({
     ...l,
     dispensedUnits: Number(await d.unitsByLot(l.lotKey)),
+    patients: Number(await d.leafCount(l.lotKey)),
     reports: Number(await s.reportCount(l.lotKey)),
     signal: raised.get(l.lotKey),
     recalled: recalls.some((x) => x.lotKey === l.lotKey),
@@ -102,28 +105,7 @@ export default function Regulator() {
           </div>
         </Card>
 
-        <Card title="Replay real FDA recalls" subtitle="Real enforcement events from openFDA, replayed as regulator transactions onto demo lots">
-          {FDA_EVENTS.length ? (
-            <>
-              <div className="rounded-xl bg-ink-850 p-4 text-sm">
-                <p className="text-xs text-slate-500">{FDA_EVENTS[replayIdx % FDA_EVENTS.length].recall_number} · {FDA_EVENTS[replayIdx % FDA_EVENTS.length].classification}</p>
-                <p className="mt-1 text-slate-200">{FDA_EVENTS[replayIdx % FDA_EVENTS.length].product_description}</p>
-                <p className="mt-2 text-slate-400">{FDA_EVENTS[replayIdx % FDA_EVENTS.length].reason_for_recall}</p>
-              </div>
-              <div className="mt-4 flex gap-3">
-                <TxButton disabled={!lots.some((l) => !l.recalled)} onRun={async () => {
-                  const ev = FDA_EVENTS[replayIdx % FDA_EVENTS.length];
-                  const target = lots.find((l) => !l.recalled);
-                  const cls = { "Class I": 1, "Class II": 2, "Class III": 3 }[ev.classification] || 2;
-                  const msg = await recall(target.lotKey, cls, ev.recall_number);
-                  setReplayIdx((i) => i + 1);
-                  return `${msg} (mapped onto lot ${target.lotNumber})`;
-                }}>Replay onto next lot</TxButton>
-                <button className="btn-ghost" onClick={() => setReplayIdx((i) => i + 1)}>Next event</button>
-              </div>
-            </>
-          ) : <p className="text-sm text-slate-500">Run <code>python pipeline/openfda.py</code> to fetch real recall events.</p>}
-        </Card>
+        <ReplayPanel lots={lots} recall={recall} idx={replayIdx} setIdx={setReplayIdx} />
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
@@ -155,5 +137,56 @@ export default function Regulator() {
         })}
       </div>
     </>
+  );
+}
+
+/**
+ * Feature G: replays openFDA enforcement events. If the event's lots were staged on the chain
+ * (npm run demo:stage-fda) it recalls exactly those lots; otherwise it maps the event onto the next
+ * unrecalled demo lot. Either way it shows how many patients drug-code matching would have alerted.
+ */
+function ReplayPanel({ lots, recall, idx, setIdx }) {
+  if (!FDA_EVENTS.length) {
+    return <Card title="Replay real FDA recalls"><p className="text-sm text-slate-500">Run <code>python pipeline/openfda.py</code> to fetch real recall events.</p></Card>;
+  }
+  const ev = FDA_EVENTS[idx % FDA_EVENTS.length];
+  const ndc = eventNdc(ev);
+  const named = parseLotNumbers(ev.code_info);
+  const staged = lots.filter((l) => l.ndc === ndc && named.includes(l.lotNumber.toUpperCase()));
+  const sameDrug = lots.filter((l) => l.ndc === ndc);
+  const lotusPatients = staged.reduce((a, l) => a + l.patients, 0);
+  const ndcPatients = sameDrug.reduce((a, l) => a + l.patients, 0);
+  const cls = CLASSIFICATION[ev.classification] || 2;
+
+  return (
+    <Card title="Replay real FDA recalls" subtitle={REPLAY_SAMPLE ? "Illustrative sample events. Run pipeline/openfda.py for real ones." : "Real enforcement events from openFDA"}>
+      <div className="rounded-xl bg-ink-850 p-4 text-sm">
+        <p className="text-xs text-slate-500">{ev.recall_number} · {ev.classification} · NDC {ndc}</p>
+        <p className="mt-1 text-slate-200">{ev.product_description}</p>
+        <p className="mt-2 text-slate-400">{ev.reason_for_recall}</p>
+        <p className="mt-2 text-xs text-slate-500">Lots named in the notice: {named.length ? named.join(", ") : "none parseable"}</p>
+      </div>
+      {staged.length > 0 && (
+        <div className="mt-4 grid grid-cols-2 gap-3 text-center">
+          <div className="rounded-lg bg-ink-850 p-3"><p className="text-2xl font-bold text-amber-300">{ndcPatients}</p><p className="text-xs text-slate-500">patients drug-code matching would alert</p></div>
+          <div className="rounded-lg bg-ink-850 p-3"><p className="text-2xl font-bold text-lotus-400">{lotusPatients}</p><p className="text-xs text-slate-500">patients LOTUS alerts (exact lots)</p></div>
+        </div>
+      )}
+      <div className="mt-4 flex flex-wrap gap-3">
+        {staged.length ? (
+          <TxButton disabled={staged.every((l) => l.recalled)} onRun={async () => {
+            for (const l of staged.filter((x) => !x.recalled)) await recall(l.lotKey, cls, ev.recall_number);
+            return `Recalled ${staged.map((l) => l.lotNumber).join(", ")} exactly. Lot ${sameDrug.find((l) => !staged.includes(l))?.lotNumber ?? "—"} of the same drug is untouched.`;
+          }}>{staged.every((l) => l.recalled) ? "Already replayed" : "Replay this recall"}</TxButton>
+        ) : (
+          <TxButton disabled={!lots.some((l) => !l.recalled)} onRun={async () => {
+            const target = lots.find((l) => !l.recalled);
+            const msg = await recall(target.lotKey, cls, ev.recall_number);
+            return `${msg} (lots not staged, so mapped onto demo lot ${target.lotNumber})`;
+          }}>Replay onto next demo lot</TxButton>
+        )}
+        <button className="btn-ghost" onClick={() => setIdx((i) => i + 1)}>Next event</button>
+      </div>
+    </Card>
   );
 }

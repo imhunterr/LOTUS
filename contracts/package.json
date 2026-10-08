@@ -12,7 +12,11 @@
     "seed": "hardhat run scripts/seed-demo.js --network localhost",
     "verify:amoy": "hardhat run scripts/verify.js --network amoy",
     "bench:gas": "hardhat run scripts/bench-gas.js",
-    "coverage:check": "hardhat coverage && node scripts/check-coverage.js"
+    "coverage:check": "hardhat coverage && node scripts/check-coverage.js",
+    "stage-fda": "hardhat run scripts/stage-fda.js --network localhost",
+    "amoy:wallet": "node scripts/new-deployer.js",
+    "amoy:actors": "hardhat run scripts/register-actors.js --network amoy",
+    "amoy:all": "npm run deploy:amoy && npm run verify:amoy && npm run amoy:actors"
   },
   "license": "MIT",
   "devDependencies": {

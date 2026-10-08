@@ -1,5 +1,7 @@
 import express from "express";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import { Contract, JsonRpcProvider, Wallet } from "ethers";
 
 /**
@@ -8,7 +10,9 @@ import { Contract, JsonRpcProvider, Wallet } from "ethers";
  * the nullifier is unlinkable to the patient's identity.
  */
 const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
-const DEPLOYMENT = process.env.DEPLOYMENT || new URL("../../../contracts/deployments/localhost.json", import.meta.url);
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+// Relative paths are taken from the repository root.
+const DEPLOYMENT = path.resolve(REPO, process.env.DEPLOYMENT || "contracts/deployments/localhost.json");
 // Hardhat account #9 by default (local development only).
 const KEY = process.env.RELAYER_KEY || "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6";
 const PORT = Number(process.env.PORT || 8787);

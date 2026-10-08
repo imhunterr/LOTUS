@@ -15,6 +15,7 @@ echo " ok"
 
 npm run deploy:local --silent
 npm run demo:seed --silent
+npm run demo:stage-fda --silent
 (npm run relayer --silent > "$LOG/relayer.log" 2>&1) & pids+=($!)
 (npm run web --silent > "$LOG/web.log" 2>&1) & pids+=($!)
 

@@ -6,19 +6,31 @@
       "recall_number": "SAMPLE-0001",
       "classification": "Class I",
       "product_description": "Sample oral liquid, 100 mL bottle (illustrative)",
-      "reason_for_recall": "Illustrative: contamination with diethylene glycol detected in one lot."
+      "reason_for_recall": "Illustrative: contamination with diethylene glycol detected in one lot.",
+      "product_ndc": [
+        "SMPL-1001-01"
+      ],
+      "code_info": "Lot #: SMP24A01, Exp 03/2027; Lot #: SMP24A02, Exp 04/2027 (illustrative)"
     },
     {
       "recall_number": "SAMPLE-0002",
       "classification": "Class II",
       "product_description": "Sample tablets, 30-count bottle (illustrative)",
-      "reason_for_recall": "Illustrative: failed dissolution specification at 12-month stability test."
+      "reason_for_recall": "Illustrative: failed dissolution specification at 12-month stability test.",
+      "product_ndc": [
+        "SMPL-2002-30"
+      ],
+      "code_info": "Lot Number: TB23K118, exp. 11/2026 (illustrative)"
     },
     {
       "recall_number": "SAMPLE-0003",
       "classification": "Class III",
       "product_description": "Sample ointment, 15 g tube (illustrative)",
-      "reason_for_recall": "Illustrative: labeling error, incorrect expiry date printed on carton."
+      "reason_for_recall": "Illustrative: labeling error, incorrect expiry date printed on carton.",
+      "product_ndc": [
+        "SMPL-3003-15"
+      ],
+      "code_info": "Lot No. OT2405X, Exp 05/2027 (illustrative)"
     }
   ]
 }
