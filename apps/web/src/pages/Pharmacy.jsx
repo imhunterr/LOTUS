@@ -5,6 +5,7 @@ import { PHARMACIES } from "../lib/useActors";
 import { Card, ErrorNote, Field, PageHeader, TxButton, useAsync } from "../components/ui";
 import LotSelect from "../components/LotSelect";
 import ShipmentInbox from "../components/ShipmentInbox";
+import QrScanner from "../components/QrScanner";
 
 export default function Pharmacy() {
   const [who, setWho] = useState("pharmacyA");
@@ -36,9 +37,15 @@ export default function Pharmacy() {
       <div className="grid gap-6 xl:grid-cols-2">
         <Card title="Dispense at the counter">
           <div className="space-y-4">
-            <Field label="Patient QR payload">
-              <textarea className="input h-24 font-mono text-xs" value={qr} onChange={(e) => setQr(e.target.value)} placeholder='{"permitId":"0","permitSecret":"0x…","commitment":"…"}' />
-            </Field>
+            <div>
+              <span className="label">Patient code</span>
+              {qr ? (
+                <div className="flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm">
+                  <span className="text-emerald-200">Prescription #{JSON.parse(qr).permitId} scanned</span>
+                  <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setQr("")}>Clear</button>
+                </div>
+              ) : <QrScanner label="Scan patient's code" onResult={(t) => { try { const p = JSON.parse(t); if (p.commitment && p.permitSecret) return setQr(t); } catch {} alert("That isn't a LOTUS patient code."); }} />}
+            </div>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Lot taken from the shelf"><LotSelect lots={(data.data?.books || [])} value={lotKey} onChange={setLotKey} /></Field>
               <Field label="Quantity"><input className="input" type="number" value={qty} onChange={(e) => setQty(e.target.value)} /></Field>

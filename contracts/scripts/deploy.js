@@ -5,14 +5,21 @@ const { deployLotus } = require("./deploy-lib");
 
 /**
  * Deploys LOTUS and writes addresses + ABIs to deployments/<network>.json, which the web app reads.
- * Public networks require a real Groth16 verifier: VERIFIER_ADDRESS=0x... npm run deploy:amoy
+ * Deploys the real Groth16 verifier unless VERIFIER_ADDRESS is given (or USE_MOCK_VERIFIER=1 locally).
  */
 async function main() {
   const { ethers, network } = hre;
   const [admin] = await ethers.getSigners();
   const isLocal = ["hardhat", "localhost"].includes(network.name);
-  const verifier = process.env.VERIFIER_ADDRESS;
-  if (!isLocal && !verifier) throw new Error("Refusing to deploy the mock verifier to a public network. Set VERIFIER_ADDRESS.");
+  // Real Groth16 verifier by default everywhere. USE_MOCK_VERIFIER=1 is for quick local UI work only.
+  let verifier = process.env.VERIFIER_ADDRESS;
+  if (process.env.USE_MOCK_VERIFIER) {
+    if (!isLocal) throw new Error("Refusing to deploy the mock verifier to a public network.");
+  } else if (!verifier) {
+    const v = await ethers.deployContract("Groth16Verifier", [], admin);
+    await v.waitForDeployment();
+    verifier = await v.getAddress();
+  }
 
   const c = await deployLotus({ admin, verifier, safetySignalThreshold: Number(process.env.SAFETY_THRESHOLD || 3) });
   const names = ["roles", "custody", "batches", "prescriptions", "dispenses", "recalls", "signals"];
@@ -37,6 +44,9 @@ async function main() {
 
   console.log(`LOTUS deployed to ${network.name}`);
   for (const n of names) console.log(`  ${contractNames[n].padEnd(22)} ${out.contracts[n].address}`);
+  console.log(`  ${"Verifier".padEnd(22)} ${verifier}${process.env.USE_MOCK_VERIFIER ? " (MOCK)" : ""}`);
+  out.verifier = verifier;
+  fs.writeFileSync(path.join(dir, `${network.name}.json`), JSON.stringify(out, null, 2));
 }
 
 main().catch((e) => {

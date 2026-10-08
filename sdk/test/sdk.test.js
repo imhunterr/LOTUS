@@ -25,7 +25,8 @@ test("matchRecalls finds only the patient's recalled dispenses", () => {
 
 test("Merkle path recomputes the root", () => {
   const tree = new LotMerkleTree([1n, 2n, 3n]);
-  const { pathElements, root } = tree.path(2);
+  const { pathElements, depth, root } = tree.path(2);
   assert.equal(pathElements.length, 16);
+  assert.equal(depth, 1); // leaf 2 has no right sibling, so only the level-1 sibling is real
   assert.notEqual(root, 0n);
 });

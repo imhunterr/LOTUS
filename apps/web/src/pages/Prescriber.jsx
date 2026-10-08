@@ -2,7 +2,6 @@ import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { newPermit } from "@lotus/sdk";
 import { DEMO_ACCOUNTS, asRole } from "../lib/chain";
-import { loadWallet, saveWallet } from "../lib/patientStore";
 import { Card, Field, PageHeader, TxButton } from "../components/ui";
 
 export default function Prescriber() {
@@ -30,7 +29,7 @@ export default function Prescriber() {
               const rx = await asRole("prescriptions", DEMO_ACCOUNTS.prescriber);
               const permitId = Number(await rx.permitCount());
               await (await rx.issue(holderCommit, ndc, qty, Math.floor(Date.now() / 1000) + days * 86400)).wait();
-              setIssued({ permitId, permitSecret, ndc, qty });
+              setIssued({ permitId, qty, ndc, code: JSON.stringify({ permitId, permitSecret, ndc, qty: Number(qty) }) });
               return `Permit #${permitId} issued`;
             }}>Issue permit</TxButton>
           </div>
@@ -38,15 +37,11 @@ export default function Prescriber() {
         <Card title="Hand to patient" subtitle="The patient scans this into their LOTUS app. It's the only copy of the permit secret.">
           {issued ? (
             <div className="flex flex-wrap items-center gap-6">
-              <div className="rounded-xl bg-white p-3"><QRCodeSVG value={JSON.stringify({ permitId: issued.permitId, permitSecret: issued.permitSecret })} size={168} /></div>
+              <div className="rounded-xl bg-white p-3"><QRCodeSVG value={issued.code} size={168} /></div>
               <div className="space-y-3 text-sm">
                 <p>Permit <b className="text-white">#{issued.permitId}</b> · {issued.qty} × {issued.ndc}</p>
-                <button className="btn-ghost" onClick={() => {
-                  const w = loadWallet();
-                  if (!w) return alert("Open the Patient app first to create a wallet.");
-                  saveWallet({ ...w, permits: [...(w.permits || []), issued] });
-                  alert("Added to the patient app on this device.");
-                }}>Send to patient app (same device demo)</button>
+                <p className="text-slate-400">Patient app → "Add prescription from doctor" → scan.</p>
+                <button className="btn-ghost" data-code={issued.code} onClick={() => navigator.clipboard?.writeText(issued.code).catch(() => {})}>Copy code (desktop demo)</button>
               </div>
             </div>
           ) : <p className="text-sm text-slate-500">Issue a permit to see its QR code.</p>}

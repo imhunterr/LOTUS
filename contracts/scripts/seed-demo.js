@@ -29,15 +29,15 @@ async function main() {
   const lots = ["D298765", "D298766"];
   const batches = at("batches", mfr);
   const custody = at("custody", mfr);
-  for (const lot of lots) await (await batches.registerLot(NDC, lot, now + 400 * 86400, ethers.id(`coa:${lot}`), 500)).wait();
+  for (const lot of lots) await (await batches.registerLot(NDC, lot, now + 400 * 86400, ethers.id(`coa:${lot}`), 1000)).wait();
   const keys = await Promise.all(lots.map((l) => batches.lotKeyOf(NDC, l)));
 
   let sid = Number(await custody.shipmentCount());
   for (const k of keys) {
-    await (await custody.ship(k, dist.address, 300, ethers.id("manifest"))).wait();
+    await (await custody.ship(k, dist.address, 900, ethers.id("manifest"))).wait();
     await (await custody.connect(dist).accept(sid++)).wait();
     for (const p of [pharmA, pharmB, pharmC]) {
-      await (await custody.connect(dist).ship(k, p.address, 80, ethers.id("manifest"))).wait();
+      await (await custody.connect(dist).ship(k, p.address, 250, ethers.id("manifest"))).wait();
       await (await custody.connect(p).accept(sid++)).wait();
     }
   }

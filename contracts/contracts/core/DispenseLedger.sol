@@ -10,7 +10,7 @@ import {PrescriptionRegistry} from "./PrescriptionRegistry.sol";
 import {RecallRegistry} from "./RecallRegistry.sol";
 import {Roles} from "../libraries/Roles.sol";
 import {Field} from "../libraries/Field.sol";
-import {LotTree, TREE_DEPTH} from "../libraries/LotTree.sol";
+import {LotTree} from "../libraries/LotTree.sol";
 
 /// @title DispenseLedger
 /// @notice The "last hop". Each dispense writes a split record:
@@ -26,7 +26,6 @@ contract DispenseLedger is LotusBase, ReentrancyGuard {
     PrescriptionRegistry public immutable prescriptions;
     RecallRegistry public recalls;
 
-    uint256[TREE_DEPTH] public zeros;
     mapping(bytes32 => LotTree.Tree) private _trees;
     mapping(uint256 => bool) public commitmentUsed; // I4
     mapping(bytes32 => mapping(uint16 => uint256)) public unitsByLotRegion;
@@ -50,11 +49,6 @@ contract DispenseLedger is LotusBase, ReentrancyGuard {
         batches = _batches;
         custody = _custody;
         prescriptions = _rx;
-        uint256 z = 0;
-        for (uint8 i = 0; i < LotTree.DEPTH; i++) {
-            zeros[i] = z;
-            z = LotTree.hashPair(z, z);
-        }
     }
 
     function setRecallRegistry(RecallRegistry r) external onlyAdmin {
@@ -88,7 +82,7 @@ contract DispenseLedger is LotusBase, ReentrancyGuard {
         totalDispenses += 1;
 
         uint256 root;
-        (leafIndex, root) = _trees[r.lotKey].insert(zeros, r.commitment);
+        (leafIndex, root) = _trees[r.lotKey].insert(r.commitment);
         emit Dispensed(r.lotKey, roles.pseudonymOf(msg.sender), region, r.qty, r.commitment, leafIndex, root, r.shipmentRef);
     }
 
@@ -107,6 +101,6 @@ contract DispenseLedger is LotusBase, ReentrancyGuard {
     }
 
     function leafCount(bytes32 lotKey) external view returns (uint32) {
-        return _trees[lotKey].nextIndex;
+        return _trees[lotKey].size;
     }
 }

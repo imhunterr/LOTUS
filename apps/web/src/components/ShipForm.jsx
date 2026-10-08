@@ -13,7 +13,7 @@ export default function ShipForm({ lots, accountIndex, recipients, onDone }) {
     <div className="grid gap-4 md:grid-cols-2">
       <Field label="Lot"><LotSelect lots={lots} value={lotKey} onChange={setLotKey} /></Field>
       <Field label="Recipient">
-        <select className="input" value={to} onChange={(e) => setTo(e.target.value)}>
+        <select className="input" aria-label="Recipient" value={to} onChange={(e) => setTo(e.target.value)}>
           <option value="">Select…</option>
           {recipients.map((r) => <option key={r.address} value={r.address}>{r.label}</option>)}
         </select>
