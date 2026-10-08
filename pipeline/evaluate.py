@@ -8,13 +8,14 @@
                  not counted against precision because they are the status quo, not LOTUS output.
 
 Usage:  python pipeline/evaluate.py --patients 10000 --recalls 30
-Writes: data/out/eval.csv and, if matplotlib is installed, data/out/sensitivity.png
+Writes: data/out/eval.csv and data/out/scaling.csv (figures: pipeline/figures.py)
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import random
+import time
 from collections import defaultdict
 from pathlib import Path
 
@@ -69,6 +70,7 @@ def main() -> None:
     ap.add_argument("--recalls", type=int, default=30)
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--guardian-recovery", type=float, default=0.8)
+    ap.add_argument("--sizes", type=int, nargs="+", default=[1_000, 10_000, 100_000])
     args = ap.parse_args()
 
     dispenses = generate(args.patients, args.seed, None)
@@ -91,20 +93,20 @@ def main() -> None:
         if r["misrecord"] in (0.0, 0.01):
             print(f"{r['lost_key']:>5} {r['misrecord']:>7} {r['method']:<25} {r['precision']:>9} {r['sensitivity']:>11}")
 
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError:
-        return
-    fig, ax = plt.subplots(1, 2, figsize=(11, 4))
-    for method in ("ndc_baseline", "lotus", "lotus_plus_conventional"):
-        pts = [r for r in rows if r["method"] == method and r["misrecord"] == 0.01]
-        ax[0].plot([p["lost_key"] for p in pts], [p["sensitivity"] for p in pts], marker="o", label=method)
-        ax[1].plot([p["lost_key"] for p in pts], [p["precision"] for p in pts], marker="o", label=method)
-    ax[0].set(title="Sensitivity vs lost-key rate (1% misrecorded)", xlabel="lost-key rate", ylabel="sensitivity")
-    ax[1].set(title="Precision vs lost-key rate", xlabel="lost-key rate", ylabel="precision")
-    ax[0].legend()
-    fig.tight_layout()
-    fig.savefig(out / "sensitivity.png", dpi=150)
+    # Scaling: same metrics at 1k / 10k / 100k patients (wall time is informative only, not hashed)
+    scaling = []
+    for n in args.sizes:
+        cohort = generate(n, args.seed, None)
+        t = time.perf_counter()
+        res = run(cohort, random.Random(args.seed), 0.10, args.guardian_recovery, 0.01, args.recalls)
+        elapsed = time.perf_counter() - t
+        for method, m in res.items():
+            scaling.append({"patients": n, "dispenses": len(cohort), "method": method, **{k: round(v, 4) for k, v in m.items()}})
+        print(f"scaling n={n}: {len(cohort)} dispenses evaluated in {elapsed:.2f}s")
+    with open(out / "scaling.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=scaling[0].keys())
+        w.writeheader()
+        w.writerows(scaling)
 
 
 if __name__ == "__main__":

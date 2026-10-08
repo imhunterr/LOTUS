@@ -29,7 +29,19 @@ async function deployLotus({ admin, verifier, safetySignalThreshold = 3 }) {
   await (await dispenses.setRecallRegistry(recalls)).wait();
   for (const c of [batches, dispenses]) await (await roles.registerSystemContract(c)).wait();
 
-  return { roles, custody, batches, prescriptions, dispenses, recalls, signals, verifier, poseidon };
+  // Constructor arguments, recorded so scripts/verify.js can verify every contract's source.
+  const a = async (c) => c.getAddress();
+  const constructorArgs = {
+    roles: [admin.address],
+    custody: [await a(roles)],
+    batches: [await a(roles), await a(custody)],
+    prescriptions: [await a(roles)],
+    dispenses: [await a(roles), await a(batches), await a(custody), await a(prescriptions)],
+    recalls: [await a(roles), await a(batches), await a(dispenses)],
+    signals: [await a(dispenses), await a(recalls), verifier, safetySignalThreshold],
+  };
+
+  return { roles, custody, batches, prescriptions, dispenses, recalls, signals, verifier, poseidon, constructorArgs };
 }
 
 module.exports = { deployLotus, ROLE };

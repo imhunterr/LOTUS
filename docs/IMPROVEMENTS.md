@@ -25,12 +25,24 @@
 | **F** | **Regulator heat-map** | Affected units by region with k-anonymous suppression | `pages/Regulator.jsx` |
 | **G** | **Live replay of real FDA recalls** | Real openFDA enforcement events replayed as regulator transactions during the demo | `pipeline/openfda.py`, Regulator page |
 
-## Still to do (owner)
+## Added after the skeleton
 
-- Compile the circuit, generate the Groth16 verifier, wire snarkjs into the browser (P2 + P7)
-- Amoy deployment + source verification (P8)
-- Replace sample replay data with `openfda.py` output; Synthea cohorts at 1k → 100k (P6)
-- Gas optimisation of `dispense` (P1 + P5)
-- Red-team notebook: timing-correlation and small-region attacks (P4)
-- Encrypted IndexedDB + biometric unlock for the patient wallet (P7)
-- Check the Hindi / Kannada / Telugu alert strings with native speakers (P7)
+| | What | Where |
+|---|---|---|
+| ZK | Circuit compiled, trusted setup, generated Groth16 verifier, real proofs in tests and in the browser | `circuits/setup.sh`, `RealProof.test.js`, `lib/prover.js` |
+| Gas | Lean Merkle tree: dispense 933k → 373k mean | `LotTree.sol` |
+| Privacy | `dispenseBatch` + pharmacy queue against the timing attack | `DispenseLedger.sol`, `Pharmacy.jsx` |
+| Patient | PIN-encrypted wallet, camera QR scanning, one-time code rotation, Guardian handover/recovery, service worker, system alerts | `apps/web` |
+| Tests | Negative-path suite; 100% lines / 95% branches; CI gate; browser e2e | `contracts/test`, `apps/web/e2e` |
+| Evidence | Red-team simulations, scaling to 100k patients, figures, byte-identical dataset manifest | `redteam/`, `pipeline/` |
+| Ops | One-command demo, Amoy deploy + verify scripts, three-job CI | `scripts/demo.sh`, `contracts/scripts`, `.github/workflows` |
+
+## Still open
+
+| Item | Why it isn't done here | Owner |
+|---|---|---|
+| Public Hermez Powers of Tau | The file host is blocked from the build environment; `npm run zk:setup` uses it automatically once downloaded | P2 |
+| Amoy deployment | Needs the team's own funded deployer key and Polygonscan API key (`docs/DEPLOY.md`) | P8 |
+| Real openFDA events in the replay panel | openFDA is blocked from the build environment; run `python pipeline/openfda.py` on a normal connection | P6 |
+| Native-speaker check of Hindi / Kannada / Telugu alerts | Needs people | P7 |
+| Demo video | Needs people | P8 |

@@ -46,6 +46,9 @@ async function main() {
   for (const n of names) console.log(`  ${contractNames[n].padEnd(22)} ${out.contracts[n].address}`);
   console.log(`  ${"Verifier".padEnd(22)} ${verifier}${process.env.USE_MOCK_VERIFIER ? " (MOCK)" : ""}`);
   out.verifier = verifier;
+  out.poseidonT3 = await c.poseidon.getAddress();
+  out.mockVerifier = !!process.env.USE_MOCK_VERIFIER;
+  for (const n of names) out.contracts[n].args = c.constructorArgs[n].map(String);
   fs.writeFileSync(path.join(dir, `${network.name}.json`), JSON.stringify(out, null, 2));
 }
 

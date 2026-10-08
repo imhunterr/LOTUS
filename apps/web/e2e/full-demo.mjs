@@ -81,8 +81,10 @@ try {
   await page.getByPlaceholder("…or paste the code").first().fill(counter);
   await button("Use").first().click();
   await page.locator("select").first().selectOption({ label: LOT_LABEL });
-  await button("Dispense").click();
-  await expectText("Dispensed.");
+  await button("Dispense (queue)").click();
+  await expectText("Queued (1 waiting)");
+  await button("Submit batch now").click();
+  await expectText("recorded in one transaction");
 
   step("Regulator recalls exactly that lot");
   await go("/regulator");

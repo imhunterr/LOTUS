@@ -1,0 +1,9 @@
+{
+  "name": "@lotus/redteam",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Adversary simulations for the LOTUS threat model (P4)",
+  "type": "module",
+  "scripts": { "start": "node run-all.mjs" },
+  "dependencies": { "@lotus/sdk": "0.1.0" }
+}

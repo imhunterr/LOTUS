@@ -30,3 +30,4 @@ apps/web/src/generated/deployment.json
 apps/web/src/generated/demo-patient.json
 contracts/deployments/
 !apps/web/public/zk/*.zkey
+.demo-logs/

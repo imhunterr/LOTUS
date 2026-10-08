@@ -79,3 +79,23 @@ describe("DispenseLedger (invariants I1–I4)", () => {
     );
   });
 });
+
+describe("DispenseLedger batching (timing-attack mitigation)", () => {
+  it("records a whole batch in one transaction, atomically", async () => {
+    const f = await loadFixture(fixture);
+    const lotKey = await registerLot(f);
+    await supply(f, lotKey, f.pharmA, 50);
+    const reqs = [];
+    for (let i = 0; i < 5; i++) reqs.push(dispenseReq(lotKey, await issuePermit(f, { qty: 2 }), 2));
+    const tx = await f.dispenses.connect(f.pharmA).dispenseBatch(reqs);
+    const r = await tx.wait();
+    expect(r.logs.filter((l) => l.fragment?.name === "Dispensed")).to.have.length(5);
+    expect(await f.dispenses.leafCount(lotKey)).to.equal(5);
+
+    const bad = [dispenseReq(lotKey, await issuePermit(f), 1), dispenseReq(lotKey, await issuePermit(f), 1, reqs[0].commitment)];
+    await expect(f.dispenses.connect(f.pharmA).dispenseBatch(bad)).to.be.revertedWith("Dispense: commitment reused");
+    expect(await f.dispenses.leafCount(lotKey)).to.equal(5); // nothing from the failed batch landed
+    await expect(f.dispenses.connect(f.pharmA).dispenseBatch([])).to.be.revertedWith("Dispense: batch size");
+    await expect(f.dispenses.connect(f.stranger).dispenseBatch(reqs)).to.be.revertedWithCustomError(f.dispenses, "Unauthorized");
+  });
+});

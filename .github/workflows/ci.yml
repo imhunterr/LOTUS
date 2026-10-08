@@ -5,18 +5,51 @@ on:
   pull_request:
 
 jobs:
-  test:
+  contracts:
+    name: Contracts, SDK, coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
+        with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: npm test
+      - name: Coverage gate (branches ≥ 90%)
+        run: npm run coverage:check -w contracts
       - run: npm run build -w apps/web
+
+  e2e:
+    name: Browser end-to-end (real ZK proofs)
+    runs-on: ubuntu-latest
+    needs: contracts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start chain, deploy, seed, relayer, web
+        run: |
+          (cd contracts && npx hardhat node > ../chain.log 2>&1 &)
+          npx wait-on -t 60000 tcp:8545
+          npm run deploy:local
+          npm run demo:seed
+          (npm run relayer > relayer.log 2>&1 &)
+          (npm run web > web.log 2>&1 &)
+          npx wait-on -t 60000 http://localhost:5173 http://localhost:8787/health
+      - run: npm run test:e2e
+
+  evidence:
+    name: Red team + reproducible evaluation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
       - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: python pipeline/evaluate.py --patients 2000 --recalls 10
+        with: { python-version: "3.11" }
+      - run: npm ci
+      - run: pip install -r pipeline/requirements.txt
+      - run: npm run redteam
+      - name: Datasets regenerate byte for byte
+        run: python pipeline/manifest.py verify

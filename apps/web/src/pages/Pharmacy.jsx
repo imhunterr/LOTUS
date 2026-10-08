@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ZeroHash } from "ethers";
 import { DEMO_ACCOUNTS, addressOf, asRole, contract, fetchLots, fetchShipments } from "../lib/chain";
 import { PHARMACIES } from "../lib/useActors";
@@ -6,6 +6,10 @@ import { Card, ErrorNote, Field, PageHeader, TxButton, useAsync } from "../compo
 import LotSelect from "../components/LotSelect";
 import ShipmentInbox from "../components/ShipmentInbox";
 import QrScanner from "../components/QrScanner";
+
+function readQueue(key) {
+  try { return JSON.parse(localStorage.getItem(key) || "[]"); } catch { return []; }
+}
 
 export default function Pharmacy() {
   const [who, setWho] = useState("pharmacyA");
@@ -20,6 +24,11 @@ export default function Pharmacy() {
   const [lotKey, setLotKey] = useState("");
   const [qr, setQr] = useState("");
   const [qty, setQty] = useState(30);
+  const [batchMode, setBatchMode] = useState(true);
+  const queueKey = `lotus.queue.${who}`;
+  const [queue, setQueueState] = useState(() => readQueue(queueKey));
+  const setQueue = (q) => { setQueueState(q); try { localStorage.setItem(queueKey, JSON.stringify(q)); } catch {} };
+  useEffect(() => setQueueState(readQueue(queueKey)), [queueKey]);
 
   return (
     <>
@@ -50,14 +59,38 @@ export default function Pharmacy() {
               <Field label="Lot taken from the shelf"><LotSelect lots={(data.data?.books || [])} value={lotKey} onChange={setLotKey} /></Field>
               <Field label="Quantity"><input className="input" type="number" value={qty} onChange={(e) => setQty(e.target.value)} /></Field>
             </div>
+            <label className="flex items-start gap-2 text-sm text-slate-300">
+              <input type="checkbox" className="mt-1 accent-pink-500" checked={batchMode} onChange={(e) => setBatchMode(e.target.checked)} />
+              <span>Queue and submit in a batch <span className="text-slate-500">(recommended: someone watching the counter can't match a patient to an on-chain event)</span></span>
+            </label>
             <TxButton disabled={!qr || !lotKey} onRun={async () => {
               const p = JSON.parse(qr);
-              const d = await asRole("dispenses", acc);
-              await (await d.dispense({ lotKey, permitId: p.permitId, permitSecret: p.permitSecret, qty, commitment: p.commitment, shipmentRef: ZeroHash })).wait();
-              data.reload();
+              const req = { lotKey, permitId: String(p.permitId), permitSecret: p.permitSecret, qty: String(qty), commitment: String(p.commitment), shipmentRef: ZeroHash };
               setQr("");
+              if (batchMode) {
+                setQueue([...queue, req]);
+                return `Queued (${queue.length + 1} waiting). Hand over the medicine; it is recorded with the next batch.`;
+              }
+              const d = await asRole("dispenses", acc);
+              await (await d.dispense(req)).wait();
+              data.reload();
               return "Dispensed. Patient is now provably linked to this lot, privately.";
-            }}>Dispense</TxButton>
+            }}>{batchMode ? "Dispense (queue)" : "Dispense now"}</TxButton>
+            {batchMode && (
+              <div className="rounded-xl border border-ink-600 p-3">
+                <p className="text-sm text-slate-300">{queue.length ? `${queue.length} dispense(s) waiting for the next batch` : "Batch queue is empty"}</p>
+                <div className="mt-2">
+                  <TxButton disabled={!queue.length} onRun={async () => {
+                    const d = await asRole("dispenses", acc);
+                    await (await d.dispenseBatch(queue)).wait();
+                    const n = queue.length;
+                    setQueue([]);
+                    data.reload();
+                    return `${n} dispenses recorded in one transaction.`;
+                  }}>Submit batch now</TxButton>
+                </div>
+              </div>
+            )}
           </div>
         </Card>
         <Card title="Closure book" subtitle="dispensed + returned + shrinkage can never exceed inbound">

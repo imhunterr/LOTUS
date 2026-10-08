@@ -65,7 +65,22 @@ contract DispenseLedger is LotusBase, ReentrancyGuard {
         bytes32 shipmentRef;
     }
 
+    uint256 public constant MAX_BATCH = 50;
+
     function dispense(DispenseRequest calldata r) external onlyRole(Roles.PHARMACY) nonReentrant returns (uint32 leafIndex) {
+        return _dispense(r);
+    }
+
+    /// @notice Timing-attack mitigation: the pharmacy queues counter dispenses and submits them together,
+    ///         so an observer who saw a patient at the counter can't match them to one on-chain event.
+    ///         All-or-nothing: if any entry is invalid the whole batch reverts.
+    function dispenseBatch(DispenseRequest[] calldata rs) external onlyRole(Roles.PHARMACY) nonReentrant returns (uint32 firstLeafIndex) {
+        require(rs.length > 0 && rs.length <= MAX_BATCH, "Dispense: batch size");
+        firstLeafIndex = _dispense(rs[0]);
+        for (uint256 i = 1; i < rs.length; i++) _dispense(rs[i]);
+    }
+
+    function _dispense(DispenseRequest calldata r) private returns (uint32 leafIndex) {
         require(batches.exists(r.lotKey), "Dispense: unknown lot");
         require(!batches.isExpired(r.lotKey), "Dispense: lot expired");
         require(address(recalls) == address(0) || !recalls.isRecalled(r.lotKey), "Dispense: lot recalled");

@@ -5,7 +5,7 @@
 1. **Smart contracts (Solidity 0.8.24, OpenZeppelin)**: the source of truth for custody, permits,
    dispenses, recalls and anonymous signals.
 2. **Off-chain services**: IPFS for certificates of analysis, manifests and report text (only hashes go
-   on-chain); the patient's device holds the secret; a stateless gas relayer.
+   on-chain); the patient's device holds the secret (PIN-encrypted); a stateless gas relayer.
 3. **Data plane**: openFDA NDC directory and enforcement events; synthetic cohorts (built-in or Synthea).
 4. **Presentation**: React dashboards per role, patient PWA, public verification page.
 
@@ -40,34 +40,26 @@ The pharmacy never sees the secret. After recovery the device re-derives every c
 
 ## Zero-knowledge proof (circuits/lotus_membership.circom)
 
-Public: `root, nullifierHash, externalNullifier, signalHash`. Private: `secret, index, Merkle path`.
+Public: `root, nullifierHash, externalNullifier, signalHash`. Private: `secret, index, depth, Merkle path`.
+About 9,900 constraints; a proof takes about 1 s in Node and a few seconds on a phone.
 It proves that the patient's commitment is in the lot's tree and that the nullifier is derived from the same
 secret, without revealing which leaf. The contract checks the root is one of the lot's last 32 roots.
 
-## Measured gas (Hardhat, optimizer 200 runs)
+## Measured gas (Hardhat, optimizer 200 runs; `npm run bench:gas -w contracts`)
 
-| Operation | Avg gas |
+| Operation | Gas |
 |---|---|
-| registerLot | ~224k |
-| ship / accept | ~170k / ~77k |
-| issue permit | ~134k |
-| **dispense** | **~933k** (16 Poseidon hashes for the Merkle insert) |
-| issueRecall | ~167k |
-| reportAdverseEvent / acknowledgeRecall | ~97k / ~112k (+ ~250k for a real Groth16 verify) |
+| registerLot | 224k |
+| ship / accept | 177k / 88k |
+| issue permit | 145k |
+| **dispense** (lot growing to 1,024 dispenses) | **mean 373k** (250k–520k) |
+| issueRecall | 167k |
+| reportAdverseEvent / acknowledgeRecall with a real Groth16 proof | ≈ 317k / ≈ 333k |
 
-`dispense` is the optimisation target for P5: options include a Lean incremental Merkle tree,
-batching inserts per block, or posting tree roots from an off-chain aggregator with fraud proofs.
-On Polygon this is still a fraction of a cent per dispense.
+The per-lot tree is a lean incremental Merkle tree: an insert hashes only at levels where a sibling
+exists, so it costs popcount(index) Poseidon hashes instead of a fixed 16. That cut the mean dispense cost
+from 933k to 373k gas. `dispenseBatch` records up to 50 dispenses in one transaction (timing privacy).
 
-## Threat model summary
+## Threat model
 
-| Adversary | Sees | Can't |
-|---|---|---|
-| Public chain observer | lots, pharmacy pseudonyms, regions, opaque commitments | link a commitment to a person or two dispenses to each other |
-| Regulator | the above + k-anonymous regional counts, report and ack counts | learn who was affected or who reported |
-| Single pharmacy | its own dispenses and the commitments it wrote | fake inbound stock, over-dispense, or learn the patient secret |
-| Colluding pharmacy + prescriber | they already know identities; together they hold 2 Guardian shares | **trust boundary**: the patient can replace one with a family guardian |
-| Relayer | proof payloads (no identity) | link a report to a patient, or alter it (signalHash is bound in the proof) |
-
-Known residual leaks (documented, measured by P4): timing correlation between a counter visit and a
-`Dispensed` event at a small pharmacy; rare-drug + small-region combinations (mitigated by k = 5).
+See [`THREAT_MODEL.md`](THREAT_MODEL.md) for adversaries, the ten attacks tested, and residual risks.

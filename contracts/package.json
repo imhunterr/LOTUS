@@ -9,7 +9,10 @@
     "chain": "hardhat node",
     "deploy:local": "hardhat run scripts/deploy.js --network localhost",
     "deploy:amoy": "hardhat run scripts/deploy.js --network amoy",
-    "seed": "hardhat run scripts/seed-demo.js --network localhost"
+    "seed": "hardhat run scripts/seed-demo.js --network localhost",
+    "verify:amoy": "hardhat run scripts/verify.js --network amoy",
+    "bench:gas": "hardhat run scripts/bench-gas.js",
+    "coverage:check": "hardhat coverage && node scripts/check-coverage.js"
   },
   "license": "MIT",
   "devDependencies": {
