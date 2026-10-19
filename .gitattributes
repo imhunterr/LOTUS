@@ -1,0 +1,5 @@
+*.sh text eol=lf
+chaincode/lotus/index.cjs text eol=lf
+packages/domain/src/engine.js text eol=lf
+tools/caliper/workload.cjs text eol=lf
+tools/caliper/serial-rate.cjs text eol=lf

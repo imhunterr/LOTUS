@@ -1,0 +1,50 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+# hardhat
+contracts/artifacts/
+contracts/cache/
+contracts/typechain-types/
+contracts/coverage/
+contracts/coverage.json
+contracts/gas-report.txt
+
+# web
+apps/web/dist/
+
+# circuits
+circuits/build/
+*.ptau
+*.zkey
+
+# python
+__pycache__/
+.venv/
+pipeline/data/raw/
+pipeline/data/out/
+
+# generated at deploy / seed time
+apps/web/src/generated/deployment.json
+apps/web/src/generated/demo-patient.json
+contracts/deployments/
+!apps/web/public/zk/*.zkey
+.demo-logs/
+docs/LOTUS_Report.html
+docs/LOTUS_Report.pdf
+docs/LOTUS_Report.docx
+docs/demo/
+.lotus-data/
+.lotus-sandbox-data/
+.lotus-dev-data/
+.lotus-local-data/
+.fabric-runtime/
+.fabric-network/
+test-results/
+.tooling/
+tools/brownie/build/
+tools/brownie/reports/
+tools/brownie/.pytest_cache/
+contracts/config/actors.*.json
+!contracts/config/actors.example.json

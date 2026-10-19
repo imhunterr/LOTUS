@@ -1,0 +1,11 @@
+{
+  "name": "lotus-caliper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reproducible LOTUS Fabric workload measurements",
+  "dependencies": {
+    "@grpc/grpc-js": "1.13.1",
+    "@hyperledger/caliper-cli": "0.7.1",
+    "@hyperledger/fabric-gateway": "1.7.1"
+  }
+}

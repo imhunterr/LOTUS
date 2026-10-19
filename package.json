@@ -1,0 +1,50 @@
+{
+  "name": "lotus",
+  "private": true,
+  "description": "LOTUS — Lot-Oriented Traceability for Unlinkable Subjects",
+  "workspaces": [
+    "contracts",
+    "sdk",
+    "apps/web",
+    "redteam",
+    "packages/domain",
+    "services/api",
+    "chaincode/lotus"
+  ],
+  "overrides": {
+    "jsonpath": {
+      "underscore": "1.13.8"
+    }
+  },
+  "scripts": {
+    "compile": "npm run compile -w contracts",
+    "test": "npm test -w contracts && npm test -w sdk && npm test -w services/api",
+    "start": "node scripts/start-fabric.mjs",
+    "start:local": "node scripts/start-local.mjs",
+    "start:fabric": "node scripts/start-fabric.mjs",
+    "build": "npm run build -w apps/web",
+    "dev": "node scripts/dev.mjs",
+    "test:app": "npm test -w services/api",
+    "test:browser": "node apps/web/e2e/application.mjs",
+    "test:fabric": "node services/api/test/fabric.mjs",
+    "tools:prepare": "node scripts/tooling-prepare.mjs",
+    "tools:install": "node scripts/tools-install.mjs",
+    "firefly:configure": "node scripts/firefly-config.mjs",
+    "firefly:register": "node scripts/firefly-register.mjs",
+    "test:firefly": "node services/api/test/firefly.mjs",
+    "bench:caliper": "node scripts/caliper-prepare.mjs && node scripts/caliper-run.mjs",
+    "test:brownie": "node scripts/brownie-run.mjs",
+    "ipfs:start": "node scripts/ipfs-start.mjs",
+    "test:ipfs": "node services/api/test/ipfs.mjs",
+    "test:toolchain-browser": "node apps/web/e2e/toolchain.mjs",
+    "tools:evidence": "node scripts/toolchain-evidence.mjs",
+    "sandbox": "node scripts/sandbox.mjs",
+    "redteam": "npm start -w redteam",
+    "eval": "npm run redteam && python pipeline/evaluate.py && npm run bench:gas -w contracts && python pipeline/figures.py",
+    "zk:setup": "bash circuits/setup.sh",
+    "report": "bash scripts/build-report.sh"
+  },
+  "dependencies": {
+    "snarkjs": "^0.7.6"
+  }
+}

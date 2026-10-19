@@ -1,0 +1,5 @@
+{
+  "name": "@lotus/api", "version": "0.2.0", "private": true, "type": "module",
+  "scripts": { "start": "node src/server.js", "test": "node --test test/*.test.js" },
+  "dependencies": { "@lotus/domain": "0.2.0", "express": "^4.21.2", "@hyperledger/fabric-gateway": "1.13.0", "@grpc/grpc-js": "^1.14.0" }
+}

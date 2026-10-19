@@ -1,0 +1,158 @@
+{
+  "date": "2026-10-14",
+  "sourceDocument": {
+    "name": "LOTUS - Synopsis Final.pdf",
+    "pages": 18,
+    "sha256": "a86fa4618b1700d6027745b0fce92b7ed498e1e9008b19235a2ad2336409020c"
+  },
+  "operationalProfile": {
+    "ledger": "Hyperledger Fabric",
+    "transport": "FireFly Core / FabConnect",
+    "documents": "IPFS encrypted ciphertext",
+    "channel": "lotus-operations",
+    "firstRunReady": true,
+    "sharedPasswords": false,
+    "seededBusinessInventory": false
+  },
+  "validation": {
+    "contractTests": 37,
+    "sdkTests": 4,
+    "apiTests": 13,
+    "applicationBrowserChecks": 40,
+    "brownieTests": 6,
+    "fireflyChecks": 25,
+    "ipfsChecks": 7,
+    "fabricFirstRunChecks": 9,
+    "operationalBrowserChecks": 7
+  },
+  "firefly": {
+    "tool": "Hyperledger FireFly",
+    "coreVersion": "1.5.0",
+    "connectorVersion": "0.10.0",
+    "channel": "lotus-tooling",
+    "checks": 25,
+    "checkedAt": 1792001686281,
+    "passed": true,
+    "features": [
+      "authenticated staff invitation",
+      "two-org custody",
+      "partial fill",
+      "signed receipt",
+      "digest-bound idempotent confirmation",
+      "recall blocking",
+      "durable recall event",
+      "transient credential isolation",
+      "scoped web interface"
+    ]
+  },
+  "ipfs": {
+    "tool": "IPFS Kubo",
+    "version": "0.43.1",
+    "passed": true,
+    "checks": 7,
+    "channel": "lotus-tooling",
+    "encrypted": true,
+    "cidCommitted": true,
+    "checkedAt": 1791988758141
+  },
+  "firstRun": {
+    "passed": true,
+    "checks": 9,
+    "channel": "lotus-operations",
+    "ledger": "fabric",
+    "transport": "firefly",
+    "documents": "ipfs",
+    "businessStateEmpty": true,
+    "scope": "Temporary authentication database; only read-only Fabric queries; no operational stock or staff seeded.",
+    "checkedAt": 1791991063853
+  },
+  "liveBrowser": {
+    "checks": 7,
+    "passed": true,
+    "ledger": "fabric",
+    "transport": "firefly",
+    "documents": "ipfs",
+    "mobileOverflow": false,
+    "pageErrors": [],
+    "scope": "Temporary browser account and database; no operational ledger writes"
+  },
+  "caliper": {
+    "tool": "Hyperledger Caliper",
+    "version": "0.7.1",
+    "runId": "33324555-a837-4104-96cd-fb17908f3d84",
+    "channel": "lotus-tooling",
+    "workers": 1,
+    "writeConcurrency": 1,
+    "rounds": {
+      "public-feed": {
+        "successful": 24,
+        "failed": 0,
+        "meanLatencyMs": 68.72395,
+        "p50LatencyMs": 25.85660000000007,
+        "p95LatencyMs": 319.48900000000003
+      },
+      "register-lot": {
+        "successful": 12,
+        "failed": 0,
+        "meanLatencyMs": 1120.1845666666666,
+        "p50LatencyMs": 1062.8846000000012,
+        "p95LatencyMs": 1467.6221000000005
+      },
+      "dispense": {
+        "successful": 12,
+        "failed": 0,
+        "meanLatencyMs": 1136.6097583333315,
+        "p50LatencyMs": 1088.080399999999,
+        "p95LatencyMs": 1348.5581999999995
+      }
+    },
+    "inventoryReconciled": true,
+    "sourceSha256": {
+      "chaincode/lotus/index.cjs": "d368eb1082529fb624ab0f33b04773a1cefceabf94f37444a8150239218b5130",
+      "packages/domain/src/engine.js": "08ac13d3716962ca64c846356a04d205ddd419add6173445a54704ae17df8ba3",
+      "tools/caliper/workload.cjs": "b4235de8724284c7418ab71fce8ee02eda5a984440565b000348acae7e15df8b",
+      "tools/caliper/serial-rate.cjs": "65dc1b34b23c12f8e58b1a7f477ce54079db563559420ffa61d061cc472eacb2"
+    },
+    "sourceCommit": "987bdb775d2d2bc40576abf0914b88a950cc1620",
+    "checkedAt": "2026-10-14T18:23:40.937Z",
+    "scope": "Single-host integration run. Reads are evaluated; writes include valid commit. No Fabric gas metric.",
+    "report": "test-results/caliper/33324555-a837-4104-96cd-fb17908f3d84/report.html"
+  },
+  "brownie": {
+    "tool": "eth-brownie",
+    "version": "1.22.2",
+    "network": "isolated local EVM",
+    "compiler": "0.8.24",
+    "optimizerRuns": 200,
+    "gas": {
+      "register_lot": 223813,
+      "issue_permit": 144816,
+      "dispense_first_leaf": 281061,
+      "dispense_second_leaf": 225667,
+      "recall": 167479
+    },
+    "sourceSha256": {
+      "contracts\\contracts\\core\\BatchRegistry.sol": "b15971c60cd92bda63a26a7d1da4611c68e596e4fc29d9da36490d8b738be7c6",
+      "contracts\\contracts\\core\\CustodyLedger.sol": "0f3c500c54e378053d5c3416f2b12567e318143d61da749d80e611cd2b769740",
+      "contracts\\contracts\\core\\DispenseLedger.sol": "d4890b32d18ef1ca637f515eafe9260408a0d8106c32f76831338cc6ab779a5d",
+      "contracts\\contracts\\core\\LotusBase.sol": "01c497218d3c969064e47caada835440241827710a5ad189db061d880cfecea5",
+      "contracts\\contracts\\core\\PrescriptionRegistry.sol": "c061ea6f6a243095d7634da7ea0dfdfc3f57eb29f95ea43350b79de793e13df8",
+      "contracts\\contracts\\core\\RecallRegistry.sol": "373911cf5658a89fb8f3f08fd3398f02a1e561ee82a952a1b725ed160230b917",
+      "contracts\\contracts\\core\\RoleRegistry.sol": "37490bc934782ac7ba5a3189bc1479328ec07d52e82acb2e6989891c613b1ab7",
+      "contracts\\contracts\\interfaces\\IMembershipVerifier.sol": "2b7445ae2c3b4a3607e8344406caa40eb84f08a19f8057ad47d8fd35d57453d0",
+      "contracts\\contracts\\libraries\\Field.sol": "221fb1debffaba0479b2b4aa995c789ac0c959a62b7e55359390afdf5565d1fd",
+      "contracts\\contracts\\libraries\\LotTree.sol": "cb1652fe3a5b9d9dd5127b56a5323ca559a617c04e66d43f509a74da764239de",
+      "contracts\\contracts\\libraries\\Roles.sol": "7dfab21c3bce05cd4a5f7c24f0d93a77602e62dd5e3409845ca11620cd337ddd",
+      "contracts\\contracts\\mocks\\MockMembershipVerifier.sol": "13af628d7efac29a0ad135a5e895d2b95b5f84cdf3b38fdec99a285ce50dc04a",
+      "contracts\\contracts\\privacy\\AnonymousSignals.sol": "93e7e476c11d22516059910eb332966ec2f0feb609a5a0ab9924e6f053e6ff0b",
+      "contracts\\contracts\\privacy\\Groth16Verifier.sol": "7187684981cd8c3a18a7fe35d543369b423618a25054b611b3af00cc395391dd"
+    },
+    "scope": "Retained Solidity reference; not Fabric throughput or application privacy evidence"
+  },
+  "limits": [
+    "Single-host consortium integration",
+    "Conventional delivery-provider integration remains a deployment gate",
+    "Guardian replacement does not revoke knowledge of a previously compromised secret",
+    "Full Synthea x openFDA evaluation campaign and production scaling are not inferred from these measurements"
+  ]
+}

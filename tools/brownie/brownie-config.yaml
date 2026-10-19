@@ -1,0 +1,17 @@
+project_structure:
+  contracts: ../../contracts/contracts
+compiler:
+  evm_version: paris
+  solc:
+    version: 0.8.24
+    optimizer:
+      enabled: true
+      runs: 200
+    remappings:
+      - '@openzeppelin=../../node_modules/@openzeppelin'
+      - 'poseidon-solidity=../../node_modules/poseidon-solidity'
+networks:
+  hardhat:
+    gas_price: 2000000000
+    cmd_settings:
+      port: 18545

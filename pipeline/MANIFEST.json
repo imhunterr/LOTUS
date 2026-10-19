@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "files": {
+    "cohort_10000_s7.json": {
+      "sha256": "c48fe445055c7e881343f3a18677b472219b6bd154ff90f6b348e86202b5d423",
+      "command": "python3 cohort.py --patients 10000 --seed 7"
+    },
+    "eval.csv": {
+      "sha256": "5786fd7c2d4376d48f1ac61a7bd30dc6a5fe02483c0b9ce59cf9915edc0081ab",
+      "command": "python3 evaluate.py --patients 10000 --recalls 30 --seed 7"
+    },
+    "scaling.csv": {
+      "sha256": "25f66fc1a09108946b005e2c524b1ffc8efc67dd8d8570f2008abda6c6769757",
+      "command": "python3 evaluate.py --patients 10000 --recalls 30 --seed 7"
+    }
+  }
+}

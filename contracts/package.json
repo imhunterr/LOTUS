@@ -1,0 +1,35 @@
+{
+  "name": "@lotus/contracts",
+  "version": "1.0.0",
+  "description": "LOTUS Solidity contracts",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage",
+    "chain": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:amoy": "hardhat run scripts/deploy.js --network amoy",
+    "verify:amoy": "hardhat run scripts/verify.js --network amoy",
+    "bench:gas": "hardhat run scripts/bench-gas.js",
+    "coverage:check": "hardhat coverage && node scripts/check-coverage.js",
+    "amoy:wallet": "node scripts/new-deployer.js",
+    "amoy:actors": "hardhat run scripts/register-actors.js --network amoy",
+    "amoy:all": "npm run deploy:amoy && npm run verify:amoy && npm run amoy:actors"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.2",
+    "@openzeppelin/contracts": "^5.4.0",
+    "circom2": "^0.2.23",
+    "circomlib": "^2.0.5",
+    "hardhat": "^2.29.1",
+    "poseidon-lite": "^0.3.0",
+    "poseidon-solidity": "^0.0.5",
+    "snarkjs": "^0.7.6",
+    "solc": "^0.8.24",
+    "solidity-coverage": "^0.8.17"
+  },
+  "dependencies": {
+    "@lotus/sdk": "0.1.0"
+  }
+}

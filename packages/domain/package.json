@@ -1,0 +1,8 @@
+{
+  "name": "@lotus/domain",
+  "version": "0.2.0",
+  "type": "module",
+  "main": "src/engine.js",
+  "exports": { ".": "./src/engine.js", "./crypto": "./src/crypto.js" },
+  "dependencies": { "@lotus/sdk": "0.1.0", "ethers": "^6.17.0", "poseidon-lite": "^0.3.0", "snarkjs": "^0.7.6" }
+}
